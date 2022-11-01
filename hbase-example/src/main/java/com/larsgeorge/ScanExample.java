@@ -22,7 +22,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import java.io.IOException;
 
 public class ScanExample {
-  private static final TableName TABLE_NAME = TableName.valueOf("articles");
+  private static final TableName TABLE_NAME = TableName.valueOf("hbase:meta");
 
 /**
  * Simple CRUD example for HBase.
@@ -32,7 +32,6 @@ public class ScanExample {
  */
 public static void main(String[] args) throws IOException {
     Configuration conf = HBaseConfiguration.create();
-    //conf.set(HConstants.ZOOKEEPER_QUORUM, "107-21-193-76.compute-1.amazonaws.com");
     try (
       Connection connection = ConnectionFactory.createConnection(conf);
       Table table = connection.getTable(TABLE_NAME);
