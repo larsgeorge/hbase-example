@@ -9,6 +9,12 @@ do
     cat ${conf_file}.mustache | mustache.sh > ${conf_file}
 done
 
+echo
+echo "Dumping HBase Configuration..."
+hbase org.apache.hadoop.hbase.HBaseConfiguration
+echo "------------------------------"
+echo
+echo "Starting HBase (Standalone Mode)..."
 hbase --config "${HBASE_CONF_DIR}" master start 
 
 exec "$@"

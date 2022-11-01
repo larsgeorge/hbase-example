@@ -1,7 +1,7 @@
 FROM adoptopenjdk/openjdk11:x86_64-alpine-jre-11.0.16.1_1
 LABEL maintainer="larsgeorge"
 
-ENV HBASE_VERSION=2.4.14
+ENV HBASE_VERSION=2.4.15
 ENV HBASE_HOME=/usr/local/hbase-${HBASE_VERSION}
 ENV HBASE_CONF_DIR=${HBASE_HOME}/conf
 ENV HBASE_DATA_DIR /data
@@ -31,7 +31,7 @@ RUN set -x \
 RUN adduser -D  -g '' -s /sbin/nologin -u 1000 docker \
     && adduser -D  -g '' -s /sbin/nologin hbase \
     #&& echo "hbase ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/hbase \
-    # create directories
+    # create directories and set ownerships
     && mkdir -p \
         /etc/hbase \
         #${HBASE_CONF_DIR} \
@@ -43,6 +43,10 @@ RUN adduser -D  -g '' -s /sbin/nologin -u 1000 docker \
         #${HBASE_LOG_DIR} \
         ${HBASE_DATA_DIR} \
         /opt/scripts \
+    # delete docs
+    && rm -rf ${HBASE_HOME}/docs \
+    # disable IPv6
+    && echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf \
     # clean up
     && apk del wget
 

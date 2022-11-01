@@ -21,4 +21,22 @@
     <name>dfs.replication</name>
     <value>1</value>
   </property>
+  <!-- Override bind address used by ZookeeperMiniCluster, which defaults to `localhost` -->
+  <property>
+    <name>hbase.zookeeper.property.clientPortAddress</name>
+    <value>0.0.0.0</value>
+  </property>
+  <!-- Override automated hostname and bind address detection -->
+  <property>
+    <name>hbase.master.ipc.address</name>
+    <value>0.0.0.0</value>
+  </property>
+  <property>
+    <name>hbase.regionserver.hostname</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>hbase.regionserver.ipc.address</name>
+    <value>0.0.0.0</value>
+  </property>
 </configuration>
