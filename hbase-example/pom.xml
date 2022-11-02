@@ -16,7 +16,7 @@
 
     <hadoop.version>2.10.0</hadoop.version>
     <zookeeper.version>3.5.7</zookeeper.version>
-    <hbase.version>2.4.14</hbase.version>
+    <hbase.version>2.4.15</hbase.version>
   </properties>
 
   <build>
@@ -46,6 +46,22 @@
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-client</artifactId>
       <version>${hbase.version}</version>
+    </dependency>
+    <!-- Logging -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.35</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.35</version>
     </dependency>
     <!-- Testing -->
     <dependency>
