@@ -133,6 +133,7 @@ def main(argv):
             # Iterate over rows
             row_string = 'put "%s", "%s", "%s", "%s"'
             row_count = 0
+            skipped_count = 0
             while True:
                 # Read a single row, exit if none is left
                 row = file_handle.readline().rstrip('\n')
@@ -148,7 +149,6 @@ def main(argv):
                     row_key = row_cols[row_key_id]
                 # Iterate over columns and emit PUT statements
                 row_col_count = 0
-                skipped_count = 0
                 for row_col in row_cols:
                     row_col = row_col.strip()
                     put_cmd = row_string % (tbl_name, row_key, cf_cols[row_col_count], row_col)
