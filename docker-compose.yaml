@@ -1,0 +1,36 @@
+# This configuration file is for the **development** setup.
+# For a production example please refer to getredash/setup repository on GitHub.
+version: "3.9"
+x-kdc-args: &kdc-args
+  build:
+    args:
+      skip_frontend_build: "true"  # set to empty string to build
+services:
+  hbase:
+    <<: *kdc-args
+    build:
+      context: hbase
+    depends_on:
+      - kdc
+    networks:
+      main:
+        aliases:
+          - hbase.local
+    ports:
+      - "2181:2181"
+      - "16000:16000"
+      - "16010:16010"
+      - "16020:16020"
+      - "16030:16030"
+  kdc:
+    <<: *kdc-args
+    build:
+      context: kdc
+    networks:
+      main:
+        aliases:
+          - kdc.local
+    ports:
+      - "88:88"
+networks:
+  main:

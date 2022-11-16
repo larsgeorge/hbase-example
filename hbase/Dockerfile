@@ -50,7 +50,7 @@ RUN adduser -D  -g '' -s /sbin/nologin -u 1000 docker \
     # clean up
     && apk del wget
 
-# copy in templayted versions
+# copy in templates and scripts
 COPY conf/* ${HBASE_CONF_DIR}/
 COPY bin/*  /usr/local/bin/
 COPY lib/*  /usr/local/lib/

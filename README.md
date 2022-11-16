@@ -8,8 +8,8 @@ After cloning the repo, you can build and run the HBase Docker image, like so:
 
 ```
 $ cd docker
-$ docker build -t larsgeorge/hbase-single:v0.1 .
-$ docker run --rm -p 2181:2181 -p 16000:16000 -p 16010:16010 -p 16020:16020 -p 16030:16030 --name hbase larsgeorge/hbase-single:v0.1
+$ docker build -t larsgeorge/hbase-standalone:v0.1 .
+$ docker run --rm -p 2181:2181 -p 16000:16000 -p 16010:16010 -p 16020:16020 -p 16030:16030 --name hbase larsgeorge/hbase-standalone:v0.1
 ```
 
 Notes:
@@ -81,7 +81,7 @@ For example:
 ```
 $ docker ps
 CONTAINER ID   IMAGE                          COMMAND           CREATED          STATUS          PORTS                                                                                                                            NAMES
-c7da77582ee4   larsgeorge/hbase-single:v0.1   "entrypoint.sh"   29 seconds ago   Up 27 seconds   0.0.0.0:2181->2181/tcp, 0.0.0.0:16000->16000/tcp, 0.0.0.0:16010->16010/tcp, 0.0.0.0:16020->16020/tcp, 0.0.0.0:16030->16030/tcp   hbase
+c7da77582ee4   larsgeorge/hbase-standalone:v0.1   "entrypoint.sh"   29 seconds ago   Up 27 seconds   0.0.0.0:2181->2181/tcp, 0.0.0.0:16000->16000/tcp, 0.0.0.0:16010->16010/tcp, 0.0.0.0:16020->16020/tcp, 0.0.0.0:16030->16030/tcp   hbase
 ...
 $ sudo vi /etc/hosts
 $ cat /etc/hosts
@@ -112,4 +112,61 @@ The run the examples using Maven as well, which helps setting up the proper Java
 
 ```
 $ mvn -q exec:java -Dexec.mainClass="com.larsgeorge.ScanExample"
+```
+
+## Local Cluster Setup
+
+Install and start Docker:
+
+```
+$ sudo yum update
+$ sudo yum install docker
+$ sudo usermod -a -G docker ec2-user
+$ id ec2-user
+$ newgrp docker
+$ sudo systemctl enable docker.service
+$ sudo systemctl start docker.service
+```
+
+Install kubectl CLI tool:
+
+```
+$ curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.7/2022-06-29/bin/linux/amd64/kubectl
+$ sudo mv kubectl /usr/local/bin/
+$ sudo chmod +x /usr/local/bin/kubectl
+$ kubectl
+```
+
+Install kind:
+
+```
+$ curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+$ chmod +x ./kind
+$ sudo mv ./kind /usr/local/bin/kind
+$ kind
+```
+
+Install script to run kind with local rgistry:
+
+```
+$ curl -O https://kind.sigs.k8s.io/examples/kind-with-registry.sh
+$ chmod +x kind-with-registry.sh
+$ sudo mv kind-with-registry.sh /usr/local/bin/
+```
+
+Start local K8s cluster with registry:
+
+```
+$ kind-with-registry.sh
+$ kubectl get pods
+```
+
+Install k9s:
+
+```
+$ curl -OL https://github.com/derailed/k9s/releases/download/v0.26.7/k9s_Linux_x86_64.tar.gz
+$ tar -zxvf k9s_Linux_x86_64.tar.gz
+$ rm LICENSE README.md
+$ sudo mv k9s /usr/local/bin/
+$ k9s
 ```

@@ -1,0 +1,39 @@
+{{- if .Values.k8s.services.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: hbase-master
+  labels:
+    svc: hbase-master
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+spec:
+  type: ClusterIP
+  ports:
+    - name: master
+      port: {{ .Values.ports.HBASE_MASTER_PORT }}
+      protocol: "TCP"
+      targetPort: 16000
+  selector:
+    run: hbase-master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: hbase-master-ui
+  labels:
+    svc: hbase-master-ui
+spec:
+  type: ClusterIP
+  ports:
+    - name: webui
+      port: 16010
+      protocol: "TCP"
+      targetPort: 16010
+  externalTrafficPolicy: Local
+  selector:
+    run: hbase-master
+{{- end }}

@@ -1,0 +1,24 @@
+namespace: hbase-example
+serviceAccountName: default
+
+nodeports:
+  hbase: 32700
+
+images:
+  hbase: larsgeorge/hbase-standalone:2.4.15
+  kdc: larsgeorge/kdc:1.0.0
+
+k8s:
+  roles:
+    enabled: false
+  services:
+    enabled: false
+    hbase-master:
+      host: localhost
+  ingress:
+    enabled: false
+  kdc:
+    enabled: false
+
+config:
+  VAR0: "0"

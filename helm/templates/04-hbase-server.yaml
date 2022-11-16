@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: hbase-master
+  labels:
+    run: hbase-master
+spec:
+  selector:
+    matchLabels:
+      run: hbase-master
+  replicas: 1
+  template:
+    metadata:
+      namespace: {{ .Values.namespace }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/02-config.yaml") . | sha256sum }}
+      labels:
+        run: hbase-master
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      automountServiceAccountToken: true
+      containers:
+      - image: {{ .Values.images.hbase-master }}
+        name: hbase-master
+        args: []
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 16000
+          protocol: TCP
+          name: "master-api"
+        - containerPort: 16010
+          protocol: TCP
+          name: "master-ui"
+        - containerPort: 2181
+          protocol: TCP
+          name: "zk-client"
+        # securityContext:
+        #   allowPrivilegeEscalation: true
+        envFrom:
+        - configMapRef:
+            name: hbase-config
+        env:
+        - name: HBASE_EXTERNAL_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - mountPath: /var/lib/okera
+          name: okera-lib
+      volumes:
+      - name: hbase-data
+        emptyDir: {}
+      - name: hbase-logs
+        emptyDir: {}
+      terminationGracePeriodSeconds: 5
+      # securityContext:
+      #   fsGroup: 100
+      #   runAsUser: 100
+      #   runAsGroup: 101
