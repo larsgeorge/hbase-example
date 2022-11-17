@@ -12,13 +12,22 @@ k8s:
   roles:
     enabled: false
   services:
-    enabled: false
-    hbase-master:
+    enabled: true
+    hbase_master:
       host: localhost
+      ports: 
+        api: 16000
+        ui: 16010
+    hbase_regionserver:
+      host: localhost
+      ports: 
+        api: 16020
+        ui: 16030
   ingress:
     enabled: false
-  kdc:
-    enabled: false
+
+kdc:
+  enabled: false
 
 config:
   VAR0: "0"

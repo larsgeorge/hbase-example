@@ -7,8 +7,7 @@ This repo contains an easy way to a) create a HBase docker image and b) run exam
 After cloning the repo, you can build and run the HBase Docker image, like so:
 
 ```
-$ cd docker
-$ docker build -t larsgeorge/hbase-standalone:v0.1 .
+$ docker build -t larsgeorge/hbase-standalone:v0.1 hbase
 $ docker run --rm -p 2181:2181 -p 16000:16000 -p 16010:16010 -p 16020:16020 -p 16030:16030 --name hbase larsgeorge/hbase-standalone:v0.1
 ```
 
@@ -24,7 +23,7 @@ Once the container is running, connect to the HBase Master WebUI like so:
 
 You can use the built-in HBase Shell to issue commands:
 
-```
+```sh
 $ docker exec -it hbase hbase shell
 ...
 HBase Shell
@@ -78,7 +77,7 @@ NOTE: It may be necessary to ensure the container's internal hostname can be res
 If that is the case, get the container ID from `docker ps` (first column) and update the local `/etc/hosts` so that the container ID as a hostname points to the loopback IP `127.0.0.1`.
 For example:
 
-```
+```sh
 $ docker ps
 CONTAINER ID   IMAGE                          COMMAND           CREATED          STATUS          PORTS                                                                                                                            NAMES
 c7da77582ee4   larsgeorge/hbase-standalone:v0.1   "entrypoint.sh"   29 seconds ago   Up 27 seconds   0.0.0.0:2181->2181/tcp, 0.0.0.0:16000->16000/tcp, 0.0.0.0:16010->16010/tcp, 0.0.0.0:16020->16020/tcp, 0.0.0.0:16030->16030/tcp   hbase
@@ -94,7 +93,7 @@ $ cat /etc/hosts
 
 The included examples are build via Maven:
 
-```
+```sh
 $ cd hbase-examples
 $ mvn package
 ...
@@ -110,7 +109,7 @@ $ mvn package
 
 The run the examples using Maven as well, which helps setting up the proper Java `classpath` for you:
 
-```
+```sh
 $ mvn -q exec:java -Dexec.mainClass="com.larsgeorge.ScanExample"
 ```
 
@@ -118,7 +117,9 @@ $ mvn -q exec:java -Dexec.mainClass="com.larsgeorge.ScanExample"
 
 Install and start Docker:
 
-```
+Note: For non-Linux operating systems use an alternative, like Docker Desktop for Windows!
+
+```sh
 $ sudo yum update
 $ sudo yum install docker
 $ sudo usermod -a -G docker ec2-user
@@ -130,7 +131,7 @@ $ sudo systemctl start docker.service
 
 Install kubectl CLI tool:
 
-```
+```sh
 $ curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.7/2022-06-29/bin/linux/amd64/kubectl
 $ sudo mv kubectl /usr/local/bin/
 $ sudo chmod +x /usr/local/bin/kubectl
@@ -139,16 +140,16 @@ $ kubectl
 
 Install kind:
 
-```
+```sh
 $ curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
 $ chmod +x ./kind
 $ sudo mv ./kind /usr/local/bin/kind
 $ kind
 ```
 
-Install script to run kind with local rgistry:
+Install script to run kind with local registry:
 
-```
+```sh
 $ curl -O https://kind.sigs.k8s.io/examples/kind-with-registry.sh
 $ chmod +x kind-with-registry.sh
 $ sudo mv kind-with-registry.sh /usr/local/bin/
@@ -156,8 +157,31 @@ $ sudo mv kind-with-registry.sh /usr/local/bin/
 
 Start local K8s cluster with registry:
 
-```
+```sh
 $ kind-with-registry.sh
+$ kubectl get pods
+```
+
+Install Helm:
+
+```sh
+$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+$ chmod 700 get_helm.sh
+$ ./get_helm.sh
+```
+
+Tag and push images:
+
+```sh
+$ docker tag larsgeorge/hbase-standalone:v0.1 larsgeorge/hbase-standalone:2.4.15
+$ docker push larsgeorge/hbase-standalone:2.4.15
+```
+
+Deploy HBase:
+
+```sh
+$ helm --create-namespace --namespace=hbase upgrade -i hbase helm -f helm/values.yaml
+Release "hbase" does not exist. Installing it now.
 $ kubectl get pods
 ```
 
@@ -169,4 +193,14 @@ $ tar -zxvf k9s_Linux_x86_64.tar.gz
 $ rm LICENSE README.md
 $ sudo mv k9s /usr/local/bin/
 $ k9s
+```
+
+Port forwarding:
+
+```sh
+$ kubectl -n hbase port-forward service/hbase-master 16000:16000 16010:16010 16020:16020 16030:16030 --address 0.0.0.0
+Forwarding from 0.0.0.0:16000 -> 16000
+Forwarding from 0.0.0.0:16010 -> 16010
+Forwarding from 0.0.0.0:16020 -> 16020
+Forwarding from 0.0.0.0:16030 -> 16030
 ```

@@ -12,28 +12,22 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: master
-      port: {{ .Values.ports.HBASE_MASTER_PORT }}
+    - name: master-api
+      port: {{ .Values.k8s.services.hbase_master.ports.api }}
       protocol: "TCP"
       targetPort: 16000
-  selector:
-    run: hbase-master
----
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: {{ .Values.namespace }}
-  name: hbase-master-ui
-  labels:
-    svc: hbase-master-ui
-spec:
-  type: ClusterIP
-  ports:
-    - name: webui
-      port: 16010
+    - name: master-ui
+      port: {{ .Values.k8s.services.hbase_master.ports.ui }}
       protocol: "TCP"
       targetPort: 16010
-  externalTrafficPolicy: Local
+    - name: rs-api
+      port: {{ .Values.k8s.services.hbase_regionserver.ports.api }}
+      protocol: "TCP"
+      targetPort: 16020
+    - name: rs-ui
+      port: {{ .Values.k8s.services.hbase_regionserver.ports.ui }}
+      protocol: "TCP"
+      targetPort: 16030
   selector:
     run: hbase-master
 {{- end }}

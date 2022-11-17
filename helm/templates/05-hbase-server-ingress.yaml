@@ -13,7 +13,7 @@ metadata:
     #nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   rules:
-    - host: {{ .Values.k8s.ingress.hbase-master.host }}
+    - host: {{ .Values.k8s.ingress.hbase_master.host }}
       http:
         paths:
           - path: /
@@ -22,5 +22,5 @@ spec:
               servicePort: 16010
   tls:
     - hosts:
-      - {{ .Values.k8s.ingress.hbase-master.host }}
+      - {{ .Values.k8s.ingress.hbase_master.host }}
 {{- end }}

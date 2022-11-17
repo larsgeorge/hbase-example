@@ -4,9 +4,6 @@ metadata:
   namespace: {{ .Values.namespace }}
   name: hbase-config
 data:
-  #VAR1: "val1"
-  #VAR2: "{{ .Values.ports.WEBUI_PORT }}"
-  #ENABLE_SOME: "true"
   {{- if .Values.config }}
   {{- toYaml .Values.config | trim | nindent 2 }}
   {{- end }}
