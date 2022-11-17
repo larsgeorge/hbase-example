@@ -1,0 +1,41 @@
+{{- if .Values.apps.kdc.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: kdc
+  labels:
+    run: kdc
+spec:
+  selector:
+    matchLabels:
+      run: kdc
+  replicas: 1
+  template:
+    metadata:
+      namespace: {{ .Values.namespace }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/02-config.yaml") . | sha256sum }}
+      labels:
+        run: kdc
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      automountServiceAccountToken: true
+      containers:
+      - image: {{ .Values.images.kdc }}
+        name: kdc
+        args: []
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 88
+          protocol: TCP
+          name: "kdc-tcp"
+        - containerPort: 88
+          protocol: UDP
+          name: "kdc-udp"
+      # securityContext:
+      #   fsGroup: 100
+      #   runAsUser: 100
+      #   runAsGroup: 101
+{{- end }}

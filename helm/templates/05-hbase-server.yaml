@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,13 +47,12 @@ spec:
             fieldRef:
               fieldPath: status.podIP
         volumeMounts:
-        - mountPath: /data
-          name: hbase-data
+        - name: data
+          mountPath: /data
       volumes:
-      - name: hbase-data
-        hostPath:
-          path: /data
-          type: Directory
+      - name: data
+        persistentVolumeClaim:
+          claimName: pvc-data
       terminationGracePeriodSeconds: 5
       # securityContext:
       #   fsGroup: 100

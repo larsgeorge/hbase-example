@@ -1,33 +1,38 @@
-namespace: hbase-example
+namespace: hbase
 serviceAccountName: default
 
 nodeports:
   hbase: 32700
 
 images:
-  hbase: larsgeorge/hbase-standalone:2.4.15
-  kdc: larsgeorge/kdc:1.0.0
+  hbase: localhost:5001/hbase-standalone:2.4.15
+  kdc: localhost:5001/kdc:v0.1
+  # hbase: larsgeorge/hbase-standalone:2.4.15
+  # kdc: larsgeorge/kdc:v0.1
 
 k8s:
   roles:
     enabled: false
   services:
     enabled: true
-    hbase_master:
-      host: localhost
-      ports: 
-        api: 16000
-        ui: 16010
-    hbase_regionserver:
-      host: localhost
-      ports: 
-        api: 16020
-        ui: 16030
   ingress:
     enabled: false
 
-kdc:
-  enabled: false
+apps:
+  hbase:
+    master:
+      ports: 
+        api: 16000
+        ui: 16010
+    regionserver:
+      ports: 
+        api: 16020
+        ui: 16030
+  kdc:
+    enabled: true
+    ports: 
+      tcp: 88
+      udp: 88
 
 config:
   VAR0: "0"

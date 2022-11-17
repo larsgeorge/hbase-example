@@ -155,12 +155,26 @@ $ chmod +x kind-with-registry.sh
 $ sudo mv kind-with-registry.sh /usr/local/bin/
 ```
 
-Start local K8s cluster with registry:
+OPTIONALLY - Start local K8s cluster with registry:
+DO NOT DO THIS USALLY!
 
 ```sh
 $ kind-with-registry.sh
-$ kubectl get pods
+$ kubectl get pods # for testing only
 ```
+
+INSTEAD DO THIS:
+This also creates a local data directory that is mapped into
+the kind configuration and then mapped again in the Helm Chart. 
+
+```sh
+$ sudo mkdir -p /data
+$ sudo chown -R docker:docker /data
+$ tools/start-local-cluster.sh 
+$ kubectl get pods # for testing only
+```
+
+
 
 Install Helm:
 
