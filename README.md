@@ -156,7 +156,7 @@ $ sudo mv kind-with-registry.sh /usr/local/bin/
 ```
 
 OPTIONALLY - Start local K8s cluster with registry:
-DO NOT DO THIS USALLY!
+DO NOT DO THIS USUALLY!
 
 ```sh
 $ kind-with-registry.sh
@@ -170,11 +170,11 @@ the kind configuration and then mapped again in the Helm Chart.
 ```sh
 $ sudo mkdir -p /data
 $ sudo chown -R docker:docker /data
+$ # and/or do open access wide: 
+$ # sudo chmod -R 777 /data
 $ tools/start-local-cluster.sh 
 $ kubectl get pods # for testing only
 ```
-
-
 
 Install Helm:
 
@@ -212,9 +212,17 @@ $ k9s
 Port forwarding:
 
 ```sh
-$ kubectl -n hbase port-forward service/hbase-master 16000:16000 16010:16010 16020:16020 16030:16030 --address 0.0.0.0
+$ kubectl -n hbase port-forward service/hbase-master 16000:16000 16010:16010 16020:16020 16030:16030 2181:2181 --address 0.0.0.0
 Forwarding from 0.0.0.0:16000 -> 16000
 Forwarding from 0.0.0.0:16010 -> 16010
 Forwarding from 0.0.0.0:16020 -> 16020
 Forwarding from 0.0.0.0:16030 -> 16030
+Forwarding from 0.0.0.0:2181 -> 2181
 ```
+
+Test functionality:
+
+```sh
+ $ mvn package
+ $ mvn -q exec:java -Dexec.mainClass="com.larsgeorge.ScanExample"
+ ```

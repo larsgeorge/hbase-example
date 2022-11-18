@@ -24,6 +24,7 @@ apps:
       ports: 
         api: 16000
         ui: 16010
+        zk: 2181
     regionserver:
       ports: 
         api: 16020

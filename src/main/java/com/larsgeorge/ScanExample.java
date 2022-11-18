@@ -29,7 +29,7 @@ public class ScanExample {
  */
 public static void main(String[] args) throws IOException {
     Configuration conf = HBaseConfiguration.create();
-    conf.set(HConstants.ZOOKEEPER_QUORUM, "107-21-193-76.compute-1.amazonaws.com");
+    //conf.set(HConstants.ZOOKEEPER_QUORUM, "107-21-193-76.compute-1.amazonaws.com");
     conf.setInt(ReadOnlyZKClient.RECOVERY_RETRY, 2);
     try (
       Connection connection = ConnectionFactory.createConnection(conf);

@@ -29,6 +29,10 @@ spec:
       port: {{ .Values.apps.hbase.regionserver.ports.ui }}
       protocol: "TCP"
       targetPort: 16030
+    - name: zk-api
+      port: {{ .Values.apps.hbase.master.ports.zk }}
+      protocol: "TCP"
+      targetPort: 2181
   selector:
     run: hbase-master
 {{- if .Values.apps.kdc.enabled }}
