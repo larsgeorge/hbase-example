@@ -5,10 +5,8 @@ nodeports:
   hbase: 32700
 
 images:
-  hbase: localhost:5001/hbase-standalone:2.4.15
+  hbase: localhost:5001/hbase-standalone:v0.1
   kdc: localhost:5001/kdc:v0.1
-  # hbase: larsgeorge/hbase-standalone:2.4.15
-  # kdc: larsgeorge/kdc:v0.1
 
 k8s:
   roles:
@@ -36,4 +34,5 @@ apps:
       udp: 88
 
 config:
-  VAR0: "0"
+  WITH_PHOENIX: "true"
+  WITH_SECURITY: "false"

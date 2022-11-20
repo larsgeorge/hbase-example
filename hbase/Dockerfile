@@ -1,12 +1,17 @@
 FROM adoptopenjdk/openjdk11:x86_64-alpine-jre-11.0.16.1_1
 LABEL maintainer="larsgeorge"
 
-ENV HBASE_VERSION=2.4.15
+ENV HBASE_MINOR_VERSION=2.4
+ENV HBASE_VERSION=${HBASE_MINOR_VERSION}.15
+ENV PHOENIX_VERSION=5.1.2
 ENV HBASE_HOME=/usr/local/hbase-${HBASE_VERSION}
 ENV HBASE_CONF_DIR=${HBASE_HOME}/conf
 ENV HBASE_DATA_DIR /data
 ENV JAVA_HOME=/opt/java/openjdk
 ENV PATH=$PATH:${JAVA_HOME}/bin:${HBASE_HOME}/bin
+
+ENV WITH_PHOENIX=false
+ENV WITH_SECURITY=false
 
 RUN set -x \
     && apk update \
@@ -21,8 +26,10 @@ RUN set -x \
         zlib \
     && apk --no-cache add --virtual \
         zip \
-    # get tarball and unpack it
+    # get tarballs and unpack them
     && wget -q -O - https://archive.apache.org/dist/hbase/${HBASE_VERSION}/hbase-${HBASE_VERSION}-bin.tar.gz \
+        | tar -xzvf - -C /usr/local \
+    && wget -q -O - https://archive.apache.org/dist/phoenix/phoenix-${PHOENIX_VERSION}/phoenix-hbase-${HBASE_MINOR_VERSION}-${PHOENIX_VERSION}-bin.tar.gz \
         | tar -xzvf - -C /usr/local
 
 # Start new RUN here to avoid downloading the tarball during changes in the below

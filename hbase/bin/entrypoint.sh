@@ -9,6 +9,13 @@ do
     cat ${conf_file}.mustache | mustache.sh > ${conf_file}
 done
 
+if [[ $WITH_PHOENIX == "true" ]]; then
+    echo "Enabling Phoenix integration"
+    PHOENIX_JAR="/usr/local/phoenix-hbase-${HBASE_MINOR_VERSION}-${PHOENIX_VERSION}-bin/phoenix-server-hbase-${HBASE_MINOR_VERSION}-${PHOENIX_VERSION}.jar"
+    export HBASE_CLASSPATH=$PHOENIX_JAR
+    cp $PHOENIX_JAR $HBASE_HOME/lib/
+fi
+
 echo
 echo "Dumping HBase Configuration..."
 hbase org.apache.hadoop.hbase.HBaseConfiguration

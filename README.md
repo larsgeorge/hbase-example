@@ -220,9 +220,116 @@ Forwarding from 0.0.0.0:16030 -> 16030
 Forwarding from 0.0.0.0:2181 -> 2181
 ```
 
+NOTES: 
+  - The port forwarding is necessary for the local CLI tools to be able to 
+    reach the services inside the K8s cluster!
+  - For some clients it is necessary to update the hosts file so that it 
+    points to the HBase master name.
+
+    ```sh
+    $ kubectl -n hbase get pods
+    NAME                            READY   STATUS    RESTARTS   AGE
+    hbase-master-79c7c48cdb-8kgch   1/1     Running   0          12h
+    kdc-59c5d6f878-92fn2            1/1     Running   0          13h
+
+    $ sudo vi /etc/hosts
+    ...
+    127.0.0.1       hbase-master-79c7c48cdb-8kgch
+    ```
+
+## Testing Locally
+
 Test functionality:
 
 ```sh
- $ mvn package
- $ mvn -q exec:java -Dexec.mainClass="com.larsgeorge.ScanExample"
- ```
+$ mvn package
+$ mvn -q exec:java -Dexec.mainClass="com.larsgeorge.ScanExample"
+...
+Cell: hbase:namespace/table:state/1668686569650/Put/vlen=2/seqid=0
+Cell: hbase:namespace,,1668686568957.0654a20231c8d80aa8220625a7e1fb98./info:regioninfo/1668890243795/Put/vlen=41/seqid=0
+Cell: hbase:namespace,,1668686568957.0654a20231c8d80aa8220625a7e1fb98./info:seqnumDuringOpen/1668890243795/Put/vlen=8/seqid=0
+Cell: hbase:namespace,,1668686568957.0654a20231c8d80aa8220625a7e1fb98./info:server/1668890243795/Put/vlen=15/seqid=0
+Cell: hbase:namespace,,1668686568957.0654a20231c8d80aa8220625a7e1fb98./info:serverstartcode/1668890243795/Put/vlen=8/seqid=0
+Cell: hbase:namespace,,1668686568957.0654a20231c8d80aa8220625a7e1fb98./info:sn/1668890243495/Put/vlen=29/seqid=0
+Cell: hbase:namespace,,1668686568957.0654a20231c8d80aa8220625a7e1fb98./info:state/1668890243795/Put/vlen=4/seqid=0
+```
+
+## Phoenix
+
+NOTES: 
+  - The below requires for the port forwarding to the active to the local machine!
+  - Phoenix must be enabled setting the `WITH_PHOENIX` variable to `true` in the
+    `values.yaml` of the Helm Chart!
+  - HBase must have been started with the changed settings.
+
+Get tarball and unpack it:
+
+```sh
+$ curl -O https://dlcdn.apache.org/phoenix/phoenix-5.1.2/phoenix-hbase-2.4-5.1.2-bin.tar.gz
+$ tar -zxvf phoenix-hbase-2.4-5.1.2-bin.tar.gz
+```
+
+Load data:
+
+ ```sh
+ $ python3 phoenix-hbase-2.4-5.1.2-bin/bin/psql.py localhost src/test/resources/us_population.sql src/test/resources/us_population.csv
+...
+no rows upserted
+Time: 0.892 sec(s)
+
+csv columns from database.
+CSV Upsert complete. 10 rows upserted
+Time: 0.07 sec(s)
+```
+
+Start interactive shell and list tables:
+
+```sh
+$ python3 phoenix-hbase-2.4-5.1.2-bin/bin/sqlline.py 
+Setting property: [incremental, false]
+Setting property: [isolation, TRANSACTION_READ_COMMITTED]
+issuing: !connect -p driver org.apache.phoenix.jdbc.PhoenixDriver -p user "none" -p password "none" "jdbc:phoenix:"
+Connecting to jdbc:phoenix:
+...
+Connected to: Phoenix (version 5.1)
+Driver: PhoenixEmbeddedDriver (version 5.1)
+Autocommit status: true
+Transaction isolation: TRANSACTION_READ_COMMITTED
+sqlline version 1.9.0
+0: jdbc:phoenix:> !tables
++-----------+-------------+---------------+--------------+---------+-----------+---------------------------+----------------+----------+
+| TABLE_CAT | TABLE_SCHEM |  TABLE_NAME   |  TABLE_TYPE  | REMARKS | TYPE_NAME | SELF_REFERENCING_COL_NAME | REF_GENERATION | INDEX_ST |
++-----------+-------------+---------------+--------------+---------+-----------+---------------------------+----------------+----------+
+|           | SYSTEM      | CATALOG       | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | CHILD_LINK    | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | FUNCTION      | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | LOG           | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | MUTEX         | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | SEQUENCE      | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | STATS         | SYSTEM TABLE |         |           |                           |                |          |
+|           | SYSTEM      | TASK          | SYSTEM TABLE |         |           |                           |                |          |
+|           |             | US_POPULATION | TABLE        |         |           |                           |                |          |
++-----------+-------------+---------------+--------------+---------+-----------+---------------------------+----------------+----------+
+0: jdbc:phoenix:> 
+```
+
+Run a query against the newly create test table:
+
+```sh
+0: jdbc:phoenix:> SELECT state as "State",count(city) as "City Count",sum(population) as "Population Sum"
+. . . .semicolon> FROM us_population
+. . . .semicolon> GROUP BY state
+. . . .semicolon> ORDER BY sum(population) DESC;
++-------+------------+----------------+
+| State | City Count | Population Sum |
++-------+------------+----------------+
+| NY    | 1          | 8143197        |
+| CA    | 3          | 6012701        |
+| TX    | 3          | 4486916        |
+| IL    | 1          | 2842518        |
+| PA    | 1          | 1463281        |
+| AZ    | 1          | 1461575        |
++-------+------------+----------------+
+6 rows selected (0.219 seconds)
+0: jdbc:phoenix:> 
+```
