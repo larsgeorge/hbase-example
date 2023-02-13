@@ -35,6 +35,7 @@ public class ImportCsvData {
   Connection connection;
   Admin admin;
   String colFam;
+  int batchSize = 1000;
 
   public ImportCsvData() {
     try {
@@ -113,16 +114,23 @@ public class ImportCsvData {
   
       createTable(tblName, new String[] { colFam.toString() });
       Table table = connection.getTable(tblName);
+      int rowCount = 0;
+      System.out.println("START - Importing into table: " + name);
       while ((nextRecord = csvReader.readNext()) != null) {
         Put put = convertToPut(nextRecord, colFamBytes);
         batch.add(put);
-        if (batch.size() > 1000) {
+        if (batch.size() > batchSize) {
+          rowCount += batch.size();
           flushPuts(table, batch);
+          System.out.print(".");
         }
       }
       if (batch.size() > 0) {
+        rowCount += batch.size();
         flushPuts(table, batch);
       }
+      if (rowCount > batchSize) System.out.println();
+      System.out.println("DONE - Rows written: " + rowCount);
     } catch (Exception e) {
       e.printStackTrace();
     }
